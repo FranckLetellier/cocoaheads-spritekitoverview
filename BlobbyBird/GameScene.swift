@@ -59,8 +59,9 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
-        let angle = (player!.physicsBody!.velocity.dy * 0.001)
-        player!.zRotation = angle.clamped(to: -1...0.5)
+        guard let player = player else {return}
+        let angle = (player.physicsBody!.velocity.dy * 0.001)
+        player.zRotation = angle.clamped(to: -1...0.5)
     }
     
     private func createObstacle() -> SKNode {
@@ -104,8 +105,7 @@ class GameScene: SKScene {
         gameOverUI.removeFromParent()
         
         // Resume Action
-        obstaclesNode?.speed = 1
-        player?.speed = 1
+        speed = 1
         
         player?.physicsBody?.velocity = .zero
         
@@ -119,6 +119,7 @@ class GameScene: SKScene {
     }
     
     private func setupGame() {
+        
         
         // 1 - Add player Node
         let playerNode = SKSpriteNode(imageNamed: "frame-1.png")
@@ -148,13 +149,13 @@ class GameScene: SKScene {
         physicsWorld.contactDelegate = self
         
         // 4 - Obstacles
-        let createOnbstacleAction = SKAction.run { [weak self] in
+        let createObstacleAction = SKAction.run { [weak self] in
             guard let obstacle = self?.createObstacle() else { return }
             self?.obstaclesNode?.addChild(obstacle)
         }
         
         let waitAction = SKAction.wait(forDuration: 1)
-        let obstacleSequence = SKAction.sequence([createOnbstacleAction,waitAction])
+        let obstacleSequence = SKAction.sequence([createObstacleAction,waitAction])
         run(SKAction.repeatForever(obstacleSequence))
         
         
@@ -183,8 +184,7 @@ extension GameScene: SKPhysicsContactDelegate {
         state = .over
         
         // Stop all objects
-        obstaclesNode?.speed = 0
-        player?.speed = 0
+        speed = 0
         
         // Display all UI
         addChild(gameOverUI)
